@@ -5,6 +5,12 @@ VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeepyUppy.Backplane", "KeepyUppy.Backplane\KeepyUppy.Backplane.csproj", "{43FDAB6F-4CDC-4249-B151-FAA5C785D2ED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeepyUppy.Interop", "KeepyUppy.Interop\KeepyUppy.Interop.csproj", "{E8FAE1F9-D74B-452B-8999-3B0F0D5CBB49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeepyUppy.Service", "KeepyUppy.Service\KeepyUppy.Service.csproj", "{7BB83323-933B-4657-96E6-97856259FF61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeepyUppy.Client", "KeepyUppy.Client\KeepyUppy.Client.csproj", "{FABCA0B7-060B-4FEE-80DE-B24FBEE89D03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +21,18 @@ Global
 		{43FDAB6F-4CDC-4249-B151-FAA5C785D2ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43FDAB6F-4CDC-4249-B151-FAA5C785D2ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43FDAB6F-4CDC-4249-B151-FAA5C785D2ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8FAE1F9-D74B-452B-8999-3B0F0D5CBB49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8FAE1F9-D74B-452B-8999-3B0F0D5CBB49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8FAE1F9-D74B-452B-8999-3B0F0D5CBB49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8FAE1F9-D74B-452B-8999-3B0F0D5CBB49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BB83323-933B-4657-96E6-97856259FF61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BB83323-933B-4657-96E6-97856259FF61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BB83323-933B-4657-96E6-97856259FF61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BB83323-933B-4657-96E6-97856259FF61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FABCA0B7-060B-4FEE-80DE-B24FBEE89D03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FABCA0B7-060B-4FEE-80DE-B24FBEE89D03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FABCA0B7-060B-4FEE-80DE-B24FBEE89D03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FABCA0B7-060B-4FEE-80DE-B24FBEE89D03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

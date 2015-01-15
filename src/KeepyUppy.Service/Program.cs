@@ -2,7 +2,7 @@
 using log4net.Config;
 using Topshelf;
 
-namespace KeepyUppy.Backplane
+namespace KeepyUppy.Service
 {
     class Program
     {
@@ -10,9 +10,9 @@ namespace KeepyUppy.Backplane
         {
             HostFactory.Run(x =>
             {
-                x.Service<BackplaneBootstrapper>(b =>
+                x.Service<ServiceBootstrapper>(b =>
                 {
-                    b.ConstructUsing(_ => new BackplaneBootstrapper());
+                    b.ConstructUsing(_ => new ServiceBootstrapper());
                     b.WhenStarted(bs =>
                     {
                         XmlConfigurator.Configure();
@@ -23,8 +23,8 @@ namespace KeepyUppy.Backplane
 
                 x.RunAsLocalSystem();
 
-                x.SetServiceName("KeepyUppy.Backplane");
-                x.SetDisplayName("KeepyUppy.Backplane");
+                x.SetServiceName("KeepyUppy.Service");
+                x.SetDisplayName("KeepyUppy.Service");
             });
 
             Console.ReadLine();
