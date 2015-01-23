@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Reflection;
 using System.Web.Http;
 using KeepyUppy.Interop;
+using log4net;
 
 namespace KeepyUppy.Backplane.RequestResponse
 {
     public class TokenController : ApiController
     {
+        private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         private static readonly object IdLock = new object();
         private static readonly object TokenLock = new object();
         private static bool _tokenAvailable = true;
@@ -15,6 +19,7 @@ namespace KeepyUppy.Backplane.RequestResponse
         [Route(ApiRoutes.GetId)]
         public IHttpActionResult GetId()
         {
+            Logger.Info("Received GetId request");
             try
             {
                 lock (IdLock)
@@ -32,6 +37,7 @@ namespace KeepyUppy.Backplane.RequestResponse
         [Route(ApiRoutes.AcquireToken)]
         public IHttpActionResult AcquireToken()
         {
+            Logger.Info("Received AcquireToken request");
             try
             {
                 lock (TokenLock)

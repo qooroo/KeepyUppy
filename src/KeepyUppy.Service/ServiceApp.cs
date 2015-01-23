@@ -1,20 +1,35 @@
-﻿using System;
+﻿using log4net;
+using System;
+using System.Reactive.Disposables;
+using System.Reflection;
 
 namespace KeepyUppy.Service
 {
     public class ServiceApp : IServiceApp
     {
-        public void StartService()
+        private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private readonly IBackplaneServiceClient _backplaneServiceClient;
+        private readonly CompositeDisposable _serviceAppSubscriptions = new CompositeDisposable();
+        private int _serviceAppId;
+
+        public ServiceApp(IBackplaneServiceClient backplaneServiceClient)
         {
-            // connect to token available stream
+            _backplaneServiceClient = backplaneServiceClient;
+        }
 
-            // if yes, grab token
+        public async void StartService()
+        {
+            _serviceAppId = await _backplaneServiceClient.GetServiceAppId();
+            _serviceAppSubscriptions.Add(_backplaneServiceClient.TokenAvailabilityStream.Subscribe(_ => OnTokenAvailable()));
+        }
 
-            // if get token, activate
-
-            // if not, do nothing
-
-            Activate();
+        private async void OnTokenAvailable()
+        {
+            if (await _backplaneServiceClient.RequestToken())
+            {
+                Logger.Info("Got token! Activating...");
+                Activate();
+            }
         }
 
         private static void Activate()
@@ -25,6 +40,11 @@ namespace KeepyUppy.Service
             }
 
             throw new ApplicationException("oh noes service is dying");
+        }
+
+        public void StopService()
+        {
+            _serviceAppSubscriptions.Dispose();
         }
     }
 }

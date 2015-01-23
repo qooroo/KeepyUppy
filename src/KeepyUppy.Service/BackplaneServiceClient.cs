@@ -13,17 +13,19 @@ namespace KeepyUppy.Service
     {
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        private HubConnection _hubConnection;
-        private IHubProxy _hubProxy;
+        private readonly HubConnection _hubConnection;
+        private readonly IHubProxy _hubProxy;
         private readonly IUrlProvider _urlProvider;
+        private readonly IHttpServiceClient _httpServiceClient;
 
-        public IObservable<Unit> TokenAvailabilityStream { get; private set; }
-        public IObservable<ConnectionState> ConnectionStateStream { get; private set; }
-        public IObservable<string> ServerMessageStream { get; private set; }
+        public IObservable<Unit> TokenAvailabilityStream { get; }
+        public IObservable<ConnectionState> ConnectionStateStream { get; }
+        public IObservable<string> ServerMessageStream { get; }
 
-        public BackplaneServiceClient(IUrlProvider urlProvider)
+        public BackplaneServiceClient(IUrlProvider urlProvider, IHttpServiceClient httpServiceClient)
         {
             _urlProvider = urlProvider;
+            _httpServiceClient = httpServiceClient;
 
             _hubConnection = new HubConnection(_urlProvider.BackplaneUrl, true);
 
@@ -46,6 +48,20 @@ namespace KeepyUppy.Service
         {
             Logger.InfoFormat("Connecting to backplane service at {0}", _urlProvider.BackplaneUrl);
             return _hubConnection.Start();
+        }
+
+        public Task<bool> RequestToken()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<int> GetServiceAppId()
+        {
+            var response = await _httpServiceClient.GetAsync<int>(ApiRoutes.GetId);
+
+            Logger.InfoFormat("Received Allocated ID: {0}", response);
+
+            return response;
         }
     }
 }

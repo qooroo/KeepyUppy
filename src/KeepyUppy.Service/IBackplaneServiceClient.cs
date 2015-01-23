@@ -12,5 +12,7 @@ namespace KeepyUppy.Service
         IObservable<Unit> TokenAvailabilityStream { get; }
 
         Task Connect();
+        Task<bool> RequestToken();
+        Task<int> GetServiceAppId();
     }
 }

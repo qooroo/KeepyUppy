@@ -8,6 +8,8 @@ namespace KeepyUppy.Service
     {
         static void Main()
         {
+            Console.WriteLine("\r\nSTARTING RESILIENT SERVICE\r\n");
+
             HostFactory.Run(x =>
             {
                 x.Service<ServiceBootstrapper>(b =>

@@ -8,6 +8,8 @@ namespace KeepyUppy.Backplane
     {
         static void Main()
         {
+            Console.WriteLine("\r\nSTARTING BACKPLANE SERVICE\r\n");
+
             HostFactory.Run(x =>
             {
                 x.Service<BackplaneBootstrapper>(b =>

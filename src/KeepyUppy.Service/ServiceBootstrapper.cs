@@ -6,6 +6,8 @@ namespace KeepyUppy.Service
 {
     public class ServiceBootstrapper : IDisposable
     {
+        private IServiceApp _app;
+
         public void Run()
         {
             var builder = new ContainerBuilder();
@@ -13,15 +15,17 @@ namespace KeepyUppy.Service
             builder.RegisterType<TestUrlProvider>().As<IUrlProvider>().SingleInstance();
             builder.RegisterType<HttpServiceClient>().As<IHttpServiceClient>().SingleInstance();
             builder.RegisterType<ServiceApp>().As<IServiceApp>().SingleInstance();
+            builder.RegisterType<BackplaneServiceClient>().As<IBackplaneServiceClient>().SingleInstance();
 
             var container = builder.Build();
 
-            container.Resolve<IServiceApp>().StartService();
+            _app = container.Resolve<IServiceApp>();
+            _app.StartService();
         }
 
         public void Dispose()
         {
-            
+            _app.StopService();
         }
     }
 }

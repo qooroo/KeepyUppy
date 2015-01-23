@@ -24,7 +24,7 @@ namespace KeepyUppy.Backplane
 
             var container = builder.Build();
 
-            _webApp = WebApp.Start("http://localhost:8998", app =>
+            _webApp = WebApp.Start(container.Resolve<IUrlProvider>().BackplaneUrl, app =>
             {
                 app.UseWelcomePage("/");
 

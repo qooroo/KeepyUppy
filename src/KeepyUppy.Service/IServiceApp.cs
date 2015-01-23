@@ -3,5 +3,6 @@
     public interface IServiceApp
     {
         void StartService();
+        void StopService();
     }
 }
