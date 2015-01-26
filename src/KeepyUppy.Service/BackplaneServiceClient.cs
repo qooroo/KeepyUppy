@@ -47,21 +47,26 @@ namespace KeepyUppy.Service
         public Task Connect()
         {
             Logger.InfoFormat("Connecting to backplane service at {0}", _urlProvider.BackplaneUrl);
+
             return _hubConnection.Start();
         }
 
-        public Task<bool> RequestToken()
+        public async Task<bool> RequestToken()
         {
-            throw new NotImplementedException();
+            var hasToken = await _httpServiceClient.GetAsync<bool>(ApiRoutes.AcquireToken);
+
+            Logger.InfoFormat("Get token result: {0}", hasToken ? "YUP, GOT IT" : "TOKEN NOT AVAILABLE");
+
+            return hasToken;
         }
 
         public async Task<int> GetServiceAppId()
         {
-            var response = await _httpServiceClient.GetAsync<int>(ApiRoutes.GetId);
+            var id = await _httpServiceClient.GetAsync<int>(ApiRoutes.GetId);
 
-            Logger.InfoFormat("Received Allocated ID: {0}", response);
+            Logger.InfoFormat("Received Allocated ID: {0}", id);
 
-            return response;
+            return id;
         }
     }
 }

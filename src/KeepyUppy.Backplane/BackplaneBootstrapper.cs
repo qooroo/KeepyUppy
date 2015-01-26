@@ -4,6 +4,7 @@ using System.Web.Http;
 using Autofac;
 using Autofac.Integration.SignalR;
 using Autofac.Integration.WebApi;
+using KeepyUppy.Backplane.Broadcast;
 using KeepyUppy.Interop;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Infrastructure;
@@ -52,6 +53,7 @@ namespace KeepyUppy.Backplane
         private static void ExecuteRegistrations(ContainerBuilder builder)
         {
             builder.RegisterType<TestUrlProvider>().As<IUrlProvider>().SingleInstance();
+            builder.RegisterType<Broadcaster>().As<IBroadcaster>().SingleInstance();
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
         }
 

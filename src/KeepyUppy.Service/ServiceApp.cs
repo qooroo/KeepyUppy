@@ -19,8 +19,17 @@ namespace KeepyUppy.Service
 
         public async void StartService()
         {
-            _serviceAppId = await _backplaneServiceClient.GetServiceAppId();
+            Logger.Info("Starting service - connecting to backplane streams");
+
             _serviceAppSubscriptions.Add(_backplaneServiceClient.TokenAvailabilityStream.Subscribe(_ => OnTokenAvailable()));
+            _serviceAppSubscriptions.Add(_backplaneServiceClient.ServerMessageStream.Subscribe(msg => Logger.InfoFormat("Server Message: {0}", msg)));
+            await _backplaneServiceClient.Connect();
+
+            Logger.Info("Connected to backplane streams, requesting Id");
+
+            _serviceAppId = await _backplaneServiceClient.GetServiceAppId();
+
+            Logger.InfoFormat("Assigned Id: {0}", _serviceAppId);
         }
 
         private async void OnTokenAvailable()
