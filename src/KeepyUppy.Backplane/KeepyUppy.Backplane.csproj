@@ -117,13 +117,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackplaneBootstrapper.cs" />
-    <Compile Include="Broadcast\Broadcaster.cs" />
-    <Compile Include="Broadcast\BroadcastHub.cs" />
-    <Compile Include="Broadcast\IBroadcaster.cs" />
+    <Compile Include="Broadcaster.cs" />
+    <Compile Include="BroadcastHub.cs" />
+    <Compile Include="IBroadcaster.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RequestResponse\TokenController.cs" />
-    <Compile Include="RequestResponse\PingController.cs" />
+    <Compile Include="BackplaneController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

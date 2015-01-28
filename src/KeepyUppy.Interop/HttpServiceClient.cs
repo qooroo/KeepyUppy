@@ -14,43 +14,37 @@ namespace KeepyUppy.Interop
     public class HttpServiceClient : IHttpServiceClient
     {
         private readonly IUrlProvider _urlProvider;
+        private readonly Func<HttpClient> _httpClient; 
 
         public HttpServiceClient(IUrlProvider urlProvider)
         {
             _urlProvider = urlProvider;
+            _httpClient = () =>
+            {
+                var client = new HttpClient {BaseAddress = new Uri(_urlProvider.BackplaneUrl)};
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                return client;
+            };
         }
 
         public async Task<TResponse> GetAsync<TResponse>(string resource)
         {
-            using (var client = new HttpClient())
+            using (var client = _httpClient())
             {
-                client.BaseAddress = new Uri(_urlProvider.BackplaneUrl);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
                 var response = await client.GetAsync(resource);
-
-                if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadAsAsync<TResponse>();
-
-                return default(TResponse);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsAsync<TResponse>();
             }
         }
 
         public async Task<TResponse> PostAsync<TRequest, TResponse>(string resource, TRequest request)
         {
-            using (var client = new HttpClient())
+            using (var client = _httpClient())
             {
-                client.BaseAddress = new Uri(_urlProvider.BackplaneUrl);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
                 var response = await client.PostAsJsonAsync(resource, request);
-
-                if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadAsAsync<TResponse>();
-
-                return default(TResponse);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsAsync<TResponse>();
             }
         }
     }

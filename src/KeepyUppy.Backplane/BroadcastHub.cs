@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using log4net;
 using Microsoft.AspNet.SignalR;
 
-namespace KeepyUppy.Backplane.Broadcast
+namespace KeepyUppy.Backplane
 {
     public class BroadcastHub : Hub
     {

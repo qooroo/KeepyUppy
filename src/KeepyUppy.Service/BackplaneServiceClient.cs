@@ -2,7 +2,6 @@
 using log4net;
 using Microsoft.AspNet.SignalR.Client;
 using System;
-using System.Reactive;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -42,7 +41,7 @@ namespace KeepyUppy.Service
             });
 
             ServerMessageStream = Observable.Create<string>(observer => _hubProxy.On<string>("OnMessage", observer.OnNext));
-            TokenAvailabilityStream = Observable.Create<bool>(observer => _hubProxy.On<bool>("OnTokenAvailability", observer.OnNext)).DistinctUntilChanged();
+            TokenAvailabilityStream = Observable.Create<bool>(observer => _hubProxy.On<bool>("OnTokenAvailability", observer.OnNext));
         }
         public Task Connect()
         {
@@ -62,11 +61,7 @@ namespace KeepyUppy.Service
 
         public async Task<int> GetServiceAppId()
         {
-            var id = await _httpServiceClient.GetAsync<int>(ApiRoutes.GetId);
-
-            Logger.InfoFormat("Received Allocated ID: {0}", id);
-
-            return id;
+            return await _httpServiceClient.GetAsync<int>(ApiRoutes.GetId);
         }
 
         public void SendHeartBeat()

@@ -6,13 +6,12 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Web.Http;
-using KeepyUppy.Backplane.Broadcast;
 using KeepyUppy.Interop;
 using log4net;
 
-namespace KeepyUppy.Backplane.RequestResponse
+namespace KeepyUppy.Backplane
 {
-    public class TokenController : ApiController
+    public class BackplaneController : ApiController
     {
         private readonly IBroadcaster _broadcaster;
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -21,10 +20,10 @@ namespace KeepyUppy.Backplane.RequestResponse
         private static readonly object TokenLock = new object();
         private static bool _tokenAvailable = true;
         private static int _nextServiceId;
-        private readonly Subject<Unit> _heartBeatStream = new Subject<Unit>();
-        private readonly SerialDisposable _heartBeatSubscription = new SerialDisposable();
+        private static readonly Subject<Unit> HeartBeatStream = new Subject<Unit>();
+        private static readonly SerialDisposable HeartBeatSubscription = new SerialDisposable();
 
-        public TokenController(IBroadcaster broadcaster)
+        public BackplaneController(IBroadcaster broadcaster)
         {
             _broadcaster = broadcaster;
         }
@@ -38,7 +37,7 @@ namespace KeepyUppy.Backplane.RequestResponse
             {
                 lock (IdLock)
                 {
-                    _broadcaster.UpdateTokenAvailability(_tokenAvailable);
+                    _broadcaster.BroadcastTokenAvailability(_tokenAvailable);
                     return Ok(++_nextServiceId);
                 }
             }
@@ -75,47 +74,24 @@ namespace KeepyUppy.Backplane.RequestResponse
 
         private void StartHeartBeatMonitor()
         {
-            _heartBeatSubscription.Disposable = _heartBeatStream.StartWith(Unit.Default).Buffer(TimeSpan.FromSeconds(5)).Subscribe(buffer =>
+            HeartBeatSubscription.Disposable = HeartBeatStream.StartWith(Unit.Default).Buffer(TimeSpan.FromSeconds(2)).Subscribe(buffer =>
             {
+                Logger.WarnFormat("{0} beats in buffer", buffer.Count);
                 if (buffer.Any())
                 {
-                    Logger.Info("Heartbeat received");
+                    // all good, as you were.
                 }
                 else
                 {
                     Logger.Warn("No Heartbeat - looking for a warm service...");
                     lock (TokenLock)
                     {
-                        _heartBeatSubscription.Disposable.Dispose();
+                        HeartBeatSubscription.Disposable.Dispose();
                         _tokenAvailable = true;
-                        _broadcaster.UpdateTokenAvailability(_tokenAvailable);
+                        _broadcaster.BroadcastTokenAvailability(_tokenAvailable);
                     }
                 }
             });
-        }
-
-        [HttpPost]
-        [Route(ApiRoutes.ReturnToken)]
-        public IHttpActionResult ReturnToken()
-        {
-            try
-            {
-                lock (TokenLock)
-                {
-                    if (_tokenAvailable)
-                    {
-                        return Ok(false);
-                    }
-
-                    _tokenAvailable = true;
-                    _broadcaster.UpdateTokenAvailability(_tokenAvailable);
-                    return Ok(true);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
         }
 
         [HttpGet]
@@ -125,7 +101,7 @@ namespace KeepyUppy.Backplane.RequestResponse
             try
             {
                 Logger.Info("Received heartbeat");
-                _heartBeatStream.OnNext(Unit.Default);
+                HeartBeatStream.OnNext(Unit.Default);
                 return Ok(true);
             }
             catch (Exception ex)
