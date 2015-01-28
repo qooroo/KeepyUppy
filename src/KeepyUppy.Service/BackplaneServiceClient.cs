@@ -18,7 +18,7 @@ namespace KeepyUppy.Service
         private readonly IUrlProvider _urlProvider;
         private readonly IHttpServiceClient _httpServiceClient;
 
-        public IObservable<Unit> TokenAvailabilityStream { get; }
+        public IObservable<bool> TokenAvailabilityStream { get; }
         public IObservable<ConnectionState> ConnectionStateStream { get; }
         public IObservable<string> ServerMessageStream { get; }
 
@@ -42,7 +42,7 @@ namespace KeepyUppy.Service
             });
 
             ServerMessageStream = Observable.Create<string>(observer => _hubProxy.On<string>("OnMessage", observer.OnNext));
-            TokenAvailabilityStream = Observable.Create<bool>(observer => _hubProxy.On<bool>("OnTokenAvailability", observer.OnNext)).Where(b => b).Select(_ => Unit.Default);
+            TokenAvailabilityStream = Observable.Create<bool>(observer => _hubProxy.On<bool>("OnTokenAvailability", observer.OnNext)).DistinctUntilChanged();
         }
         public Task Connect()
         {
@@ -67,6 +67,11 @@ namespace KeepyUppy.Service
             Logger.InfoFormat("Received Allocated ID: {0}", id);
 
             return id;
+        }
+
+        public void SendHeartBeat()
+        {
+            _httpServiceClient.GetAsync<bool>(ApiRoutes.HeartBeat);
         }
     }
 }

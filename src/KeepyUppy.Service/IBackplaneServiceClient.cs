@@ -9,10 +9,11 @@ namespace KeepyUppy.Service
     {
         IObservable<ConnectionState> ConnectionStateStream { get; }
         IObservable<string> ServerMessageStream { get; }
-        IObservable<Unit> TokenAvailabilityStream { get; }
+        IObservable<bool> TokenAvailabilityStream { get; }
 
         Task Connect();
         Task<bool> RequestToken();
         Task<int> GetServiceAppId();
+        void SendHeartBeat();
     }
 }

@@ -1,6 +1,8 @@
 ﻿using log4net;
 using System;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Reflection;
 
 namespace KeepyUppy.Service
@@ -11,6 +13,8 @@ namespace KeepyUppy.Service
         private readonly IBackplaneServiceClient _backplaneServiceClient;
         private readonly CompositeDisposable _serviceAppSubscriptions = new CompositeDisposable();
         private int _serviceAppId;
+        private readonly SerialDisposable _heartBeatSubscription = new SerialDisposable();
+        private bool _activated;
 
         public ServiceApp(IBackplaneServiceClient backplaneServiceClient)
         {
@@ -19,30 +23,35 @@ namespace KeepyUppy.Service
 
         public async void StartService()
         {
-            Logger.Info("Starting service - connecting to backplane streams");
+            Logger.Info("Connecting to backplane streams");
 
-            _serviceAppSubscriptions.Add(_backplaneServiceClient.TokenAvailabilityStream.Subscribe(_ => OnTokenAvailable()));
+            _serviceAppSubscriptions.Add(_backplaneServiceClient.TokenAvailabilityStream.Subscribe(TryRequestToken));
             _serviceAppSubscriptions.Add(_backplaneServiceClient.ServerMessageStream.Subscribe(msg => Logger.InfoFormat("Server Message: {0}", msg)));
             await _backplaneServiceClient.Connect();
 
-            Logger.Info("Connected to backplane streams, requesting Id");
-
+            Logger.Info("Requesting Id");
             _serviceAppId = await _backplaneServiceClient.GetServiceAppId();
-
             Logger.InfoFormat("Assigned Id: {0}", _serviceAppId);
         }
 
-        private async void OnTokenAvailable()
+        private async void TryRequestToken(bool isTokenAvailable)
         {
-            if (await _backplaneServiceClient.RequestToken())
+            if (isTokenAvailable && !_activated && await _backplaneServiceClient.RequestToken())
             {
                 Logger.Info("Got token! Activating...");
                 Activate();
             }
         }
 
-        private static void Activate()
+        private void Activate()
         {
+            _backplaneServiceClient.SendHeartBeat();
+
+            _activated = true;
+            _heartBeatSubscription.Disposable = Observable.Interval(TimeSpan.FromSeconds(1)).StartWith(0)
+                .ObserveOn(new NewThreadScheduler())
+                .Subscribe(_ => _backplaneServiceClient.SendHeartBeat());
+
             while (Console.ReadLine() != "die")
             {
                 Console.WriteLine("Service still running happily =]");

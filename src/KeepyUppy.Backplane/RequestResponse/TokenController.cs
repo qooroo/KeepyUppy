@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Reflection;
 using System.Web.Http;
 using KeepyUppy.Backplane.Broadcast;
@@ -17,13 +21,12 @@ namespace KeepyUppy.Backplane.RequestResponse
         private static readonly object TokenLock = new object();
         private static bool _tokenAvailable = true;
         private static int _nextServiceId;
+        private readonly Subject<Unit> _heartBeatStream = new Subject<Unit>();
+        private readonly SerialDisposable _heartBeatSubscription = new SerialDisposable();
 
         public TokenController(IBroadcaster broadcaster)
         {
             _broadcaster = broadcaster;
-            Observable.Interval(TimeSpan.FromSeconds(1))
-                .Subscribe(
-                    _ => _broadcaster.BroadcastMessage(string.Format("clock: {0}", DateTime.Now.ToString("HH:mm:ss"))));
         }
 
         [HttpGet]
@@ -35,6 +38,7 @@ namespace KeepyUppy.Backplane.RequestResponse
             {
                 lock (IdLock)
                 {
+                    _broadcaster.UpdateTokenAvailability(_tokenAvailable);
                     return Ok(++_nextServiceId);
                 }
             }
@@ -44,7 +48,7 @@ namespace KeepyUppy.Backplane.RequestResponse
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route(ApiRoutes.AcquireToken)]
         public IHttpActionResult AcquireToken()
         {
@@ -71,7 +75,23 @@ namespace KeepyUppy.Backplane.RequestResponse
 
         private void StartHeartBeatMonitor()
         {
-            
+            _heartBeatSubscription.Disposable = _heartBeatStream.StartWith(Unit.Default).Buffer(TimeSpan.FromSeconds(5)).Subscribe(buffer =>
+            {
+                if (buffer.Any())
+                {
+                    Logger.Info("Heartbeat received");
+                }
+                else
+                {
+                    Logger.Warn("No Heartbeat - looking for a warm service...");
+                    lock (TokenLock)
+                    {
+                        _heartBeatSubscription.Disposable.Dispose();
+                        _tokenAvailable = true;
+                        _broadcaster.UpdateTokenAvailability(_tokenAvailable);
+                    }
+                }
+            });
         }
 
         [HttpPost]
@@ -88,8 +108,25 @@ namespace KeepyUppy.Backplane.RequestResponse
                     }
 
                     _tokenAvailable = true;
+                    _broadcaster.UpdateTokenAvailability(_tokenAvailable);
                     return Ok(true);
                 }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpGet]
+        [Route(ApiRoutes.HeartBeat)]
+        public IHttpActionResult HeartBeat()
+        {
+            try
+            {
+                Logger.Info("Received heartbeat");
+                _heartBeatStream.OnNext(Unit.Default);
+                return Ok(true);
             }
             catch (Exception ex)
             {

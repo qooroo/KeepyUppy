@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reactive.Linq;
+using System.Reflection;
 using log4net;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Infrastructure;
@@ -13,6 +15,9 @@ namespace KeepyUppy.Backplane.Broadcast
         public Broadcaster(IConnectionManager connectionManager)
         {
             _context = connectionManager.GetHubContext<BroadcastHub>();
+
+            //Observable.Interval(TimeSpan.FromSeconds(5))
+            //    .Subscribe(_ => BroadcastMessage(DateTime.Now.ToString("HH:mm:ss")));
         }
 
         public void BroadcastMessage(string message)
