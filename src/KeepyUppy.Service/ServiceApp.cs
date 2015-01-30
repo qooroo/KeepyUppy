@@ -31,7 +31,7 @@ namespace KeepyUppy.Service
 
             Logger.Info("Requesting Id");
             _serviceAppId = await _backplaneServiceClient.GetServiceAppId();
-            Logger.InfoFormat("Assigned Id: {0}", _serviceAppId);
+            Logger.InfoFormat("Assigned Id: {0}, listening for token availability...", _serviceAppId);
         }
 
         private async void TryRequestToken(bool isTokenAvailable)
@@ -45,24 +45,20 @@ namespace KeepyUppy.Service
 
         private void Activate()
         {
-            _backplaneServiceClient.SendHeartBeat();
-
             _activated = true;
-            _heartBeatSubscription.Disposable = Observable.Interval(TimeSpan.FromSeconds(1)).StartWith(0)
+            _heartBeatSubscription.Disposable = Observable.Interval(TimeSpan.FromSeconds(1))
                 .ObserveOn(new NewThreadScheduler())
                 .Subscribe(_ => _backplaneServiceClient.SendHeartBeat());
 
-            while (Console.ReadLine() != "die")
-            {
-                Console.WriteLine("Service still running happily =]");
-            }
+            // start real service work here
 
-            throw new ApplicationException("oh noes service is dying");
+            Logger.Info("Service activated!");
         }
 
         public void StopService()
         {
             _serviceAppSubscriptions.Dispose();
+            _heartBeatSubscription.Dispose();
         }
     }
 }

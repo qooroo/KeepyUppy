@@ -9,11 +9,6 @@ namespace KeepyUppy.Backplane
     {
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public BroadcastHub()
-        {
-            
-        }
-
         public override Task OnConnected()
         {
             Logger.InfoFormat("Connected: {0}", Context.ConnectionId);
