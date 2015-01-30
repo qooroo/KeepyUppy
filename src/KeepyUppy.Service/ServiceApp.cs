@@ -26,7 +26,6 @@ namespace KeepyUppy.Service
             Logger.Info("Connecting to backplane streams");
 
             _serviceAppSubscriptions.Add(_backplaneServiceClient.TokenAvailabilityStream.Subscribe(TryRequestToken));
-            _serviceAppSubscriptions.Add(_backplaneServiceClient.ServerMessageStream.Subscribe(msg => Logger.InfoFormat("Server Message: {0}", msg)));
             await _backplaneServiceClient.Connect();
 
             Logger.Info("Requesting Id");

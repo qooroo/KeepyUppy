@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeepyUppy.Interop", "KeepyU
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeepyUppy.Service", "KeepyUppy.Service\KeepyUppy.Service.csproj", "{7BB83323-933B-4657-96E6-97856259FF61}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeepyUppy.Test", "KeepyUppy.Test\KeepyUppy.Test.csproj", "{AFD2981D-65D8-4FEA-91D1-6EF67E4E351C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{7BB83323-933B-4657-96E6-97856259FF61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BB83323-933B-4657-96E6-97856259FF61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BB83323-933B-4657-96E6-97856259FF61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFD2981D-65D8-4FEA-91D1-6EF67E4E351C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFD2981D-65D8-4FEA-91D1-6EF67E4E351C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFD2981D-65D8-4FEA-91D1-6EF67E4E351C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFD2981D-65D8-4FEA-91D1-6EF67E4E351C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
