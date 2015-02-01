@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Web.Http;
 using Autofac;
@@ -47,6 +48,9 @@ namespace KeepyUppy.Backplane
                 #endregion
                 app.MapSignalR(new HubConfiguration { Resolver = resolver, EnableDetailedErrors = true });
             });
+
+            Observable.Interval(TimeSpan.FromSeconds(1))
+                .Subscribe(_ => container.Resolve<BackplaneController>().BroadcastTokenAvailabilty());
         }
 
         private static void ExecuteRegistrations(ContainerBuilder builder)
@@ -54,6 +58,7 @@ namespace KeepyUppy.Backplane
             builder.RegisterType<TestUrlProvider>().As<IUrlProvider>().SingleInstance();
             builder.RegisterType<Broadcaster>().As<IBroadcaster>().SingleInstance();
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
+            builder.RegisterHubs();
         }
 
         public void Dispose()

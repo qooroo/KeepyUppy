@@ -17,7 +17,6 @@ namespace KeepyUppy.Backplane
 
         public void BroadcastTokenAvailability(bool tokenAvailable)
         {
-            Logger.InfoFormat("Broadcasting token availability: {0}", tokenAvailable);
             _context.Clients.All.OnTokenAvailability(tokenAvailable);
         }
     }

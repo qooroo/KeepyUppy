@@ -22,11 +22,16 @@ namespace KeepyUppy.Backplane
         private static int _nextServiceId;
         private static readonly Subject<Unit> HeartBeatStream = new Subject<Unit>();
         private static readonly SerialDisposable HeartBeatSubscription = new SerialDisposable();
-        private static bool _heartBeatActivated;
+        private static int _hotServiceId;
 
         public BackplaneController(IBroadcaster broadcaster)
         {
             _broadcaster = broadcaster;
+        }
+
+        public void BroadcastTokenAvailabilty()
+        {
+            _broadcaster.BroadcastTokenAvailability(_tokenAvailable);
         }
 
         [HttpGet]
@@ -37,10 +42,10 @@ namespace KeepyUppy.Backplane
         }
 
         [HttpGet]
-        [Route(ApiRoutes.GetHeartBeatMonitorStatus)]
-        public IHttpActionResult GetHeartBeatMonitorStatus()
+        [Route(ApiRoutes.GetHotServiceId)]
+        public IHttpActionResult GetHotServiceId()
         {
-            return Ok(_heartBeatActivated);
+            return Ok(_hotServiceId);
         }
 
         [HttpGet]
@@ -52,7 +57,6 @@ namespace KeepyUppy.Backplane
             {
                 lock (IdLock)
                 {
-                    _broadcaster.BroadcastTokenAvailability(_tokenAvailable);
                     return Ok(++_nextServiceId);
                 }
             }
@@ -64,7 +68,7 @@ namespace KeepyUppy.Backplane
 
         [HttpGet]
         [Route(ApiRoutes.AcquireToken)]
-        public IHttpActionResult AcquireToken()
+        public IHttpActionResult AcquireToken(int serviceId)
         {
             Logger.Info("Received AcquireToken request");
             try
@@ -78,6 +82,7 @@ namespace KeepyUppy.Backplane
 
                     _tokenAvailable = false;
                     StartHeartBeatMonitor();
+                    _hotServiceId = serviceId;
                     return Ok(true);
                 }
             }
@@ -85,29 +90,6 @@ namespace KeepyUppy.Backplane
             {
                 return InternalServerError(ex);
             }
-        }
-
-        private void StartHeartBeatMonitor()
-        {
-            _heartBeatActivated = true;
-            HeartBeatSubscription.Disposable = HeartBeatStream.StartWith(Unit.Default).Buffer(TimeSpan.FromSeconds(2)).Subscribe(buffer =>
-            {
-                Logger.WarnFormat("{0} beats in buffer", buffer.Count);
-                if (buffer.Any())
-                {
-                    // all good, as you were.
-                }
-                else
-                {
-                    Logger.Warn("No Heartbeat - looking for a warm service...");
-                    lock (TokenLock)
-                    {
-                        HeartBeatSubscription.Disposable.Dispose();
-                        _tokenAvailable = true;
-                        _broadcaster.BroadcastTokenAvailability(_tokenAvailable);
-                    }
-                }
-            });
         }
 
         [HttpGet]
@@ -124,6 +106,29 @@ namespace KeepyUppy.Backplane
             {
                 return InternalServerError(ex);
             }
+        }
+
+        private void StartHeartBeatMonitor()
+        {
+            HeartBeatSubscription.Disposable = HeartBeatStream.StartWith(Unit.Default).Buffer(TimeSpan.FromSeconds(2)).Subscribe(buffer =>
+            {
+                Logger.WarnFormat("{0} beats in buffer", buffer.Count);
+                if (buffer.Any())
+                {
+                    // all good, nothing to do, as you were.
+                }
+                else
+                {
+                    Logger.Warn("No Heartbeat - looking for a warm service...");
+                    lock (TokenLock)
+                    {
+                        HeartBeatSubscription.Disposable.Dispose();
+                        _tokenAvailable = true;
+                        _hotServiceId = 0;
+                        _broadcaster.BroadcastTokenAvailability(_tokenAvailable);
+                    }
+                }
+            });
         }
     }
 }

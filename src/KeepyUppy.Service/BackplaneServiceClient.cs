@@ -19,7 +19,6 @@ namespace KeepyUppy.Service
 
         public IObservable<bool> TokenAvailabilityStream { get; }
         public IObservable<ConnectionState> ConnectionStateStream { get; }
-        public IObservable<string> ServerMessageStream { get; }
 
         public BackplaneServiceClient(IUrlProvider urlProvider, IHttpServiceClient httpServiceClient)
         {
@@ -40,8 +39,9 @@ namespace KeepyUppy.Service
                     .Subscribe(s => observer.OnNext(s.NewState));
             });
 
-            ServerMessageStream = Observable.Create<string>(observer => _hubProxy.On<string>("OnMessage", observer.OnNext));
-            TokenAvailabilityStream = Observable.Create<bool>(observer => _hubProxy.On<bool>("OnTokenAvailability", observer.OnNext));
+            TokenAvailabilityStream = Observable.Create<bool>(observer =>
+                _hubProxy.On<bool>("OnTokenAvailability", observer.OnNext))
+                .DistinctUntilChanged();
         }
         public Task Connect()
         {
@@ -50,9 +50,9 @@ namespace KeepyUppy.Service
             return _hubConnection.Start();
         }
 
-        public async Task<bool> RequestToken()
+        public async Task<bool> RequestToken(int serviceId)
         {
-            var hasToken = await _httpServiceClient.GetAsync<bool>(ApiRoutes.AcquireToken);
+            var hasToken = await _httpServiceClient.GetAsync<bool>(ApiRoutes.AcquireToken + "?serviceId=" + serviceId);
 
             Logger.InfoFormat("Get token result: {0}", hasToken ? "YUP, GOT IT" : "TOKEN NOT AVAILABLE");
 

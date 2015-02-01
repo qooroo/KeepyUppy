@@ -23,19 +23,18 @@ namespace KeepyUppy.Service
 
         public async void StartService()
         {
-            Logger.Info("Connecting to backplane streams");
-
-            _serviceAppSubscriptions.Add(_backplaneServiceClient.TokenAvailabilityStream.Subscribe(TryRequestToken));
-            await _backplaneServiceClient.Connect();
-
             Logger.Info("Requesting Id");
             _serviceAppId = await _backplaneServiceClient.GetServiceAppId();
             Logger.InfoFormat("Assigned Id: {0}, listening for token availability...", _serviceAppId);
+
+            Logger.Info("Connecting to backplane streams");
+            _serviceAppSubscriptions.Add(_backplaneServiceClient.TokenAvailabilityStream.Subscribe(TryRequestToken));
+            await _backplaneServiceClient.Connect();
         }
 
         private async void TryRequestToken(bool isTokenAvailable)
         {
-            if (isTokenAvailable && !_activated && await _backplaneServiceClient.RequestToken())
+            if (isTokenAvailable && !_activated && await _backplaneServiceClient.RequestToken(_serviceAppId))
             {
                 Logger.Info("Got token! Activating...");
                 Activate();

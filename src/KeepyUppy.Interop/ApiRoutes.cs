@@ -6,6 +6,6 @@
         public const string GetId = "GetId";
         public const string HeartBeat = "HeartBeat";
         public const string GetTokenAvailabilityStatus = "GetTokenAvailabilityStatus";
-        public const string GetHeartBeatMonitorStatus = "GetHeartBeatMonitorStatus";
+        public const string GetHotServiceId = "GetHotServiceId";
     }
 }

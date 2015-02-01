@@ -8,11 +8,10 @@ namespace KeepyUppy.Service
     public interface IBackplaneServiceClient
     {
         IObservable<ConnectionState> ConnectionStateStream { get; }
-        IObservable<string> ServerMessageStream { get; }
         IObservable<bool> TokenAvailabilityStream { get; }
 
         Task Connect();
-        Task<bool> RequestToken();
+        Task<bool> RequestToken(int serviceId);
         Task<int> GetServiceAppId();
         void SendHeartBeat();
     }
