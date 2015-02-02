@@ -24,7 +24,7 @@ namespace KeepyUppy.Test
             try
             {
                 backplane = Process.Start(BackplaneExe);
-                Thread.Sleep(1000);
+                Thread.Sleep(2000);
                 var tokenAvailable = _httpClient.GetAsync<bool>(ApiRoutes.GetTokenAvailabilityStatus).Result;
                 var hotServiceId = _httpClient.GetAsync<int>(ApiRoutes.GetHotServiceId).Result;
                 
@@ -45,7 +45,7 @@ namespace KeepyUppy.Test
             try
             {
                 backplane = Process.Start(BackplaneExe);
-                Thread.Sleep(1000);
+                Thread.Sleep(2000);
                 service = Process.Start(ServiceExe);
                 Thread.Sleep(3000);
                 var tokenAvailability = _httpClient.GetAsync<bool>(ApiRoutes.GetTokenAvailabilityStatus).Result;
@@ -71,7 +71,7 @@ namespace KeepyUppy.Test
             {
                 // start backplane and service, wait for connections
                 backplane = Process.Start(BackplaneExe);
-                Thread.Sleep(1000);
+                Thread.Sleep(2000);
                 service1 = Process.Start(ServiceExe);
                 Thread.Sleep(3000);
                 // get connected id
