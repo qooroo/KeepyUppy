@@ -33,7 +33,7 @@ namespace KeepyUppy.Test
             }
             finally
             {
-                backplane?.Kill();
+                backplane.Kill();
             }
         }
 
@@ -56,8 +56,8 @@ namespace KeepyUppy.Test
             }
             finally
             {
-                backplane?.Kill();
-                service?.Kill();
+                backplane.Kill();
+                service.Kill();
             }
         }
 
@@ -94,8 +94,8 @@ namespace KeepyUppy.Test
             }
             finally
             {
-                backplane?.Kill();
-                service2?.Kill();
+                backplane.Kill();
+                service2.Kill();
             }
         }
     }

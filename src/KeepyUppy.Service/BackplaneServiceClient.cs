@@ -17,8 +17,8 @@ namespace KeepyUppy.Service
         private readonly IUrlProvider _urlProvider;
         private readonly IHttpServiceClient _httpServiceClient;
 
-        public IObservable<bool> TokenAvailabilityStream { get; }
-        public IObservable<ConnectionState> ConnectionStateStream { get; }
+        public IObservable<bool> TokenAvailabilityStream { get; private set; }
+        public IObservable<ConnectionState> ConnectionStateStream { get; private set; }
 
         public BackplaneServiceClient(IUrlProvider urlProvider, IHttpServiceClient httpServiceClient)
         {
